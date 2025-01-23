@@ -1,0 +1,31 @@
+{{template "base" .}}
+
+{{define "title"}}Play {{.Game.Title}}{{end}}
+
+{{define "navigation"}}
+<a href="/game?id={{.Game.ID}}">Back</a>
+{{end}}
+
+{{define "main"}}
+{{with .Game}}
+<iframe id="gameFrame" src="{{.Src}}" width="960" height="600" scrolling="no"></iframe>
+<button id="fullscreenButton">Full screen</button>
+<script>
+    const button = document.getElementById('fullscreenButton');
+    const iframe = document.getElementById('gameFrame');
+    button.addEventListener('click', () => {
+        if (iframe.requestFullScreen) {
+            iframe.requestFullscreen();
+        } else if (iframe.mozRequestFullScreen) {
+            iframe.mozRequestFullScreen();
+        } else if (iframe.webkitRequestFullscreen) {
+            iframe.webkitRequestFullscreen();
+        } else if (iframe.msRequestFullscreen) {
+            iframe.msRequestFullscreen();
+        }
+    });
+    //iframe.append(button)
+
+</script>
+{{end}}
+{{end}}

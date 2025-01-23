@@ -1,0 +1,28 @@
+{{template "base" .}}
+{{define "title"}}Main{{end}}
+{{define "navigation"}}
+    <a href="/">Main</a> 
+{{end}}
+{{define "main"}}
+    <h2>Showcase</h2>
+    {{if .Games}}
+        <table>
+            <tr>
+                <th>Game</th>
+                <th>Created</th>
+                <th>ID</th>
+            </tr>
+            {{range .Games}}
+                <tr>
+                    <td><a href="/game?id={{.ID}}">{{.Title}}</a></td>
+                        {{with .Created}}
+                        <td>{{printf "%02v-%v-%v %02v:%02v:%02v" .Day .Month .Year .Hour .Minute .Second}}</td>
+                        {{end}}
+                    <td>{{.ID}}</td>
+                </tr>
+            {{end}}
+        </table>
+    {{else}}
+        <p>No any games while...</p>
+    {{end}}
+{{end}}
