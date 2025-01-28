@@ -13,6 +13,7 @@ func findRootDir() (string, error) {
 
 	for {
 		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			println(dir)
 			return dir, nil
 		}
 
