@@ -11,7 +11,7 @@ func (app *application) routes(staticDir *string) *http.ServeMux {
 	staticPath := filepath.Join(root, *staticDir, "/")
 	app.infoLog.Printf("Static path %v", staticPath)
 	fileServer := http.FileServer(neuteredFileSystem{http.Dir(staticPath)})
-	mux.Handle("/gameplatform/static/", http.StripPrefix("/static", fileServer))
+	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 	mux.HandleFunc("/gameplatform", app.home)
 	mux.HandleFunc("/gameplatform/game", app.showGamePreview)
 	mux.HandleFunc("/gameplatform/play", app.showGame)
