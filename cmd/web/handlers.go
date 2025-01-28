@@ -10,7 +10,7 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
+	if r.URL.Path != "/gameplatform" {
 		http.NotFound(w, r)
 		return
 	}
