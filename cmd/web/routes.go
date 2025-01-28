@@ -8,7 +8,7 @@ import (
 func (app *application) routes(staticDir *string) *http.ServeMux {
 	mux := http.NewServeMux()
 	root, _ := findRootDir()
-	staticPath := filepath.Join(root, *staticDir)
+	staticPath := filepath.Join(root, *staticDir, "/")
 	app.infoLog.Printf("Static path %v", staticPath)
 	fileServer := http.FileServer(neuteredFileSystem{http.Dir(staticPath)})
 	mux.Handle("/gameplatform/static/", http.StripPrefix("/static", fileServer))
