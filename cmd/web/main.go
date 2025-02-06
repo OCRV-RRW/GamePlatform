@@ -4,11 +4,13 @@ import (
 	"allcran_wsx/gameplatform/pkg/models/mysql"
 	"database/sql"
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -22,28 +24,31 @@ type application struct {
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP address for start server")
-	dsn := flag.String("dsn", "web:qazXSW@!12wsxCDE£@23@/gamebox?parseTime=True", "MySQL DB sourse config")
+	dsn := flag.String("dsn", "web:qazXSW@!12wsxCDE£@23@tcp(db:3306)/gamebox?parseTime=True", "MySQL DB sourse config")
 	staticDir := flag.String("static-dir", "ui/static", "Path to static assets")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Llongfile)
 
 	db, err := openDB(*dsn)
 	if err != nil {
-		errorLog.Fatal(err)
+		trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+		errorLog.Output(2, trace)
 	}
 
 	defer db.Close()
 
 	root, err := findRootDir()
 	if err != nil {
-		errorLog.Fatal(err)
+		trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+		errorLog.Output(2, trace)
 	}
 
 	templateCache, err := newTemplateCache(filepath.Join(root, "ui/html"))
 	if err != nil {
-		errorLog.Fatal(err)
+		trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+		errorLog.Output(2, trace)
 	}
 
 	app := &application{

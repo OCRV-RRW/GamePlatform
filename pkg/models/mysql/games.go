@@ -47,6 +47,9 @@ func (m *GameModel) Get(id int) (*models.Game, error) {
 func (m *GameModel) Lastest() ([]*models.Game, error) {
 	stmt := `SELECT id, title, description, src, created FROM games
 			 ORDER BY created DESC LIMIT 10`
+	if m.DB == nil {
+		return nil, models.ErrNoRecord
+	}
 	rows, err := m.DB.Query(stmt)
 	if err != nil {
 		return nil, err
@@ -54,7 +57,7 @@ func (m *GameModel) Lastest() ([]*models.Game, error) {
 
 	defer rows.Close()
 
-	var snippets []*models.Game
+	var games []*models.Game
 
 	for rows.Next() {
 		s := &models.Game{}
@@ -62,12 +65,12 @@ func (m *GameModel) Lastest() ([]*models.Game, error) {
 		if err != nil {
 			return nil, err
 		}
-		snippets = append(snippets, s)
+		games = append(games, s)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return snippets, nil
+	return games, nil
 }
