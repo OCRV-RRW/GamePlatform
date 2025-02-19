@@ -11,9 +11,17 @@
 <iframe id="gameFrame" src="{{.Src}}" width="960" height="600" scrolling="no"></iframe>
 <button id="fullscreenButton">Full screen</button>
 <script>
-    const button = document.getElementById('fullscreenButton');
+    const main = document.getElementById("main")
+    const fullscreen_button = document.getElementById('fullscreenButton');
     const iframe = document.getElementById('gameFrame');
-    button.addEventListener('click', () => {
+    window.addEventListener("message", e=>{
+        console.log("LOADED", e)
+    });
+    fullscreen_button.addEventListener('click', () => {
+        
+        console.log("post message", 'iframe -> index')
+        iframe.contentWindow.postMessage(1, "*")
+
         if (iframe.requestFullScreen) {
             iframe.requestFullscreen();
         } else if (iframe.mozRequestFullScreen) {
@@ -24,8 +32,6 @@
             iframe.msRequestFullscreen();
         }
     });
-    //iframe.append(button)
-
 </script>
 {{end}}
 {{end}}
