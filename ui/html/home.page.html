@@ -9,13 +9,13 @@
     {{if .Games}}
     {{range .Games}}
     <div class="grid-item">
-        <div class="preview-container" href="/gameplatform/game?id={{.ID}}">
-            <img src="{{.PreviewImage}}" alt="Превью игры {{.Title}}">
-        </div>
-        <a href="/gameplatform/game?id={{.ID}}">{{.Title}}</a>
-        <span class="play">
-            <a href="/gameplatform/play?id={{.ID}}">ИГРАТЬ</a>
-        </span>
+        <a class="body" href="/gameplatform/game?id={{.ID}}">
+            <div class="preview-container">
+                <img src="{{.PreviewImage}}" alt="Превью игры {{.Title}}">
+            </div>
+            <p>{{.Title}}</p>
+            <a class="play" href="/gameplatform/play?id={{.ID}}">ИГРАТЬ</a>
+        </a>
     </div>
     {{end}}
     {{else}}
