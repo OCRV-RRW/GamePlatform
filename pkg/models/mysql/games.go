@@ -28,11 +28,11 @@ func (m *GameModel) Insert(title, content, expires string) (int, error) {
 }
 
 func (m *GameModel) Get(id int) (*models.Game, error) {
-	stmt := `SELECT id, title, description, src, created FROM games
+	stmt := `SELECT id, title, description, src, preview, created FROM games
 			 WHERE id = ?`
 	s := &models.Game{}
 
-	err := m.DB.QueryRow(stmt, id).Scan(&s.ID, &s.Title, &s.Description, &s.Src, &s.Created)
+	err := m.DB.QueryRow(stmt, id).Scan(&s.ID, &s.Title, &s.Description, &s.Src, &s.PreviewImage, &s.Created)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrNoRecord
@@ -45,7 +45,7 @@ func (m *GameModel) Get(id int) (*models.Game, error) {
 }
 
 func (m *GameModel) Lastest() ([]*models.Game, error) {
-	stmt := `SELECT id, title, description, src, created FROM games
+	stmt := `SELECT id, title, description, src, preview, created FROM games
 			 ORDER BY created DESC LIMIT 10`
 	if m.DB == nil {
 		return nil, models.ErrNoRecord
@@ -61,7 +61,7 @@ func (m *GameModel) Lastest() ([]*models.Game, error) {
 
 	for rows.Next() {
 		s := &models.Game{}
-		err = rows.Scan(&s.ID, &s.Title, &s.Description, &s.Src, &s.Created)
+		err = rows.Scan(&s.ID, &s.Title, &s.Description, &s.Src, &s.PreviewImage, &s.Created)
 		if err != nil {
 			return nil, err
 		}

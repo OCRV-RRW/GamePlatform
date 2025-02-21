@@ -1,24 +1,23 @@
 {{template "base" .}}
 
-{{define "title"}}Game {{.Game.Title}}{{end}}
+{{define "title"}}ИГРА {{.Game.Title}}{{end}}
 
 {{define "navigation"}}
-    <a href="/gameplatform">Main</a> 
+    <a href="/gameplatform">ГЛАВНАЯ</a> 
 {{end}}
 
 
 {{define "main"}}
     {{with .Game}}
-    <div class="snippet">
+    <div class="gamepage">
         <div class="metadata">
             <strong>{{.Title}}</strong>
-            <span>{{.ID}}</span>
         </div>
         <pre>
             <pre>{{.Description}}</pre>
         </pre>
         <div class="metadata">
-            <a href="/gameplatform/play?id={{.ID}}">Play</a>
+            <a href="/gameplatform/play?id={{.ID}}">ИГРАТЬ</a>
             <time>Created: {{.Created.Day}} {{.Created.Month}} {{.Created.Year}}</time>
         </div>
     </div>

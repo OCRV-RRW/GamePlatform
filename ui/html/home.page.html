@@ -1,28 +1,25 @@
 {{template "base" .}}
-{{define "title"}}Main{{end}}
+{{define "title"}}Главная страница{{end}}
 {{define "navigation"}}
-    <a href="/gameplatform">Main</a> 
+<a href="/gameplatform">ГЛАВНАЯ</a>
 {{end}}
 {{define "main"}}
-    <h2>Showcase</h2>
+<h2>ВИТРИНА</h2>
+<div class="grid-container">
     {{if .Games}}
-        <table>
-            <tr>
-                <th>Game</th>
-                <th>Created</th>
-                <th>ID</th>
-            </tr>
-            {{range .Games}}
-                <tr>
-                    <td><a href="/gameplatform/game?id={{.ID}}">{{.Title}}</a></td>
-                        {{with .Created}}
-                        <td>{{printf "%02v-%v-%v %02v:%02v:%02v" .Day .Month .Year .Hour .Minute .Second}}</td>
-                        {{end}}
-                    <td>{{.ID}}</td>
-                </tr>
-            {{end}}
-        </table>
-    {{else}}
-        <p>No any games while...</p>
+    {{range .Games}}
+    <div class="grid-item">
+        <div class="preview-container" href="/gameplatform/game?id={{.ID}}">
+            <img src="{{.PreviewImage}}" alt="Превью игры {{.Title}}">
+        </div>
+        <a href="/gameplatform/game?id={{.ID}}">{{.Title}}</a>
+        <span class="play">
+            <a href="/gameplatform/play?id={{.ID}}">ИГРАТЬ</a>
+        </span>
+    </div>
     {{end}}
+    {{else}}
+    <p>Пока нет игр...</p>
+    {{end}}
+</div>
 {{end}}
