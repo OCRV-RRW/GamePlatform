@@ -24,9 +24,9 @@ footer {
     padding: 0 calc((100% - 960px) / 2);
 }
 
-nav{
+/* nav{
     padding: 2px calc((100% - 800px) / 2) ;
-}
+} */
 
 main {
     margin-top: 54px;
@@ -96,6 +96,7 @@ header a {
 }
 
 nav {
+    padding: 40px;
     border-bottom: 1px solid #E4E5E7;
     padding-top: 17px;
     padding-bottom: 15px;
@@ -251,10 +252,29 @@ button:hover {
     border-radius: 3px;
 }
 
-.gamepage pre {
+.gamepage .preview-container{
+    display: flex;           /* Включаем Flexbox */
+    justify-content: center; /* Выравнивание элементов по горизонтали */
+    align-items: center;
+    width: 100%;
+    height: 450px;
+    margin: 0px;
     padding: 18px;
     border-top: 1px solid #E4E5E7;
+}
+
+.gamepage .preview-container img{
+    width: 80%;
+}
+
+.gamepage pre {
+    padding: 18px 60px;
+    border-top: 1px solid #E4E5E7;
     border-bottom: 1px solid #E4E5E7;
+    
+    white-space: pre-wrap; /* Позволяет переносить длинные строки */
+    text-align: justify;
+    overflow-wrap: break-word;
 }
 
 .gamepage .metadata {
@@ -262,6 +282,9 @@ button:hover {
     color: #6A6C6F;
     padding: 0.75em 18px;
     overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .gamepage .metadata span {
@@ -304,7 +327,7 @@ div.error {
 
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
     padding: 10px;
 }
@@ -318,7 +341,7 @@ div.error {
 }
 
 .preview-container{
-    width: auto; /* Ширина превью */
+    width: calc(100% - 30px); /* Ширина превью */
     height: 200px; /* Высота превью */
     overflow: hidden; /* Скрыть лишние части изображения */
     margin-bottom: 10px; /* Отступ снизу для текста */
@@ -342,6 +365,8 @@ div.error {
     border-radius: 4px;
     margin-top: 6px;
     cursor: pointer;
+    width: 50%;
+    text-align: center;
 }
 
 .play:hover {
@@ -404,14 +429,12 @@ iframe {
         width: 100%;
         height: 100%;
         font-size: 16px; /* Уменьшение шрифта для мобильных устройств */
-        line-height: 2.4;
         -webkit-text-size-adjust: 100%;
     }
 
     header,
-    nav,
     footer {
-        padding: 0 10px; /* Уменьшение отступов */
+        padding: 20px 10px; /* Уменьшение отступов */
     }
 
     h1 {
