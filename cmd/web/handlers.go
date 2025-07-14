@@ -1,12 +1,13 @@
 package main
 
 import (
-	models "allcran_wsx/gameplatform/pkg"
+	//	models "allcran_wsx/gameplatform/pkg"
+	"database/sql"
 	"errors"
-	"fmt"
 
 	"net/http"
-	"strconv"
+
+	"github.com/google/uuid"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -15,27 +16,33 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, err := app.games.Lastest()
+	s, err := app.db.GetGames(r.Context())
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
 	data := &templateData{Games: s}
+	app.infoLog.Println(data)
 
 	app.render(w, r, "home.page.html", data)
 }
 
 func (app *application) showGamePreview(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
+	id := r.URL.Query().Get("id")
+	if id == "" {
 		app.notFound(w)
 		return
 	}
 
-	s, err := app.games.Get(id)
+	id_uuid, err := uuid.Parse(id)
 	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
+		app.serverError(w, err)
+	}
+
+	s, err := app.db.GetGameByID(r.Context(), id_uuid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
 			app.notFound(w)
 		} else {
 			app.serverError(w, err)
@@ -43,19 +50,27 @@ func (app *application) showGamePreview(w http.ResponseWriter, r *http.Request) 
 	}
 
 	data := &templateData{Game: s}
+	app.infoLog.Println(data)
 	app.render(w, r, "show.page.html", data)
 }
 
 func (app *application) showGame(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
+	id := r.URL.Query().Get("id")
+	if id == "" {
 		app.notFound(w)
 		return
 	}
 
-	g, err := app.games.Get(id)
+	ctx := r.Context()
+	id_uuid, err := uuid.Parse(id)
+
 	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
+		app.clientError(w, 400)
+	}
+
+	g, err := app.db.GetGameByID(ctx, id_uuid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
 			app.notFound(w)
 		} else {
 			app.serverError(w, err)
@@ -67,26 +82,26 @@ func (app *application) showGame(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "game.page.html", data)
 }
 
-func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-
-	if err := r.ParseForm(); err != nil {
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-
-	title := "История про улитку"
-	content := "Улитка выползла из раковины,\nвытянула рожки,\nи опять подобрала их."
-	expires := "7"
-
-	id, err := app.games.Insert(title, content, expires)
-	if err != nil {
-		app.serverError(w, err)
-	}
-
-	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
-}
+// func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method != http.MethodPost {
+// 		w.Header().Set("Allow", http.MethodPost)
+// 		app.clientError(w, http.StatusMethodNotAllowed)
+// 		return
+// 	}
+//
+// 	if err := r.ParseForm(); err != nil {
+// 		app.clientError(w, http.StatusMethodNotAllowed)
+// 		return
+// 	}
+//
+// 	title := "История про улитку"
+// 	content := "Улитка выползла из раковины,\nвытянула рожки,\nи опять подобрала их."
+// 	expires := "7"
+//
+// 	id, err := app.games.Insert(title, content, expires)
+// 	if err != nil {
+// 		app.serverError(w, err)
+// 	}
+//
+// 	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+// }

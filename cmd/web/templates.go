@@ -1,14 +1,14 @@
 package main
 
 import (
-	models "allcran_wsx/gameplatform/pkg"
+	"allcran_wsx/gameplatform/internal/database"
 	"html/template"
 	"path/filepath"
 )
 
 type templateData struct {
-	Game  *models.Game
-	Games []*models.Game
+	Game  database.Game
+	Games []database.Game
 }
 
 func newTemplateCache(dir string) (map[string]*template.Template, error) {
