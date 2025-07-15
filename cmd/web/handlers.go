@@ -1,7 +1,6 @@
 package main
 
 import (
-	//	models "allcran_wsx/gameplatform/pkg"
 	"database/sql"
 	"errors"
 
@@ -22,10 +21,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := &templateData{Games: s}
+	data := &HomeTemplateData{Games: s}
 	app.infoLog.Println(data)
 
-	app.render(w, r, "home.page.html", data)
+	app.render(w, "home.page.html", data)
 }
 
 func (app *application) showGamePreview(w http.ResponseWriter, r *http.Request) {
@@ -40,18 +39,30 @@ func (app *application) showGamePreview(w http.ResponseWriter, r *http.Request) 
 		app.serverError(w, err)
 	}
 
-	s, err := app.db.GetGameByID(r.Context(), id_uuid)
+	game, err := app.db.GetGameByID(r.Context(), id_uuid)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			app.notFound(w)
 		} else {
 			app.serverError(w, err)
 		}
+		return
 	}
 
-	data := &templateData{Game: s}
+	preview, err := app.db.GetGamePreview(r.Context(), game.ID)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	gamePreview := GamePreviewData{
+		Preview: preview,
+		Game:    game,
+	}
+
+	data := &ShowTemplateData{gamePreview}
 	app.infoLog.Println(data)
-	app.render(w, r, "show.page.html", data)
+	app.render(w, "show.page.html", data)
 }
 
 func (app *application) showGame(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +79,7 @@ func (app *application) showGame(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, 400)
 	}
 
-	g, err := app.db.GetGameByID(ctx, id_uuid)
+	game_data, err := app.db.GetGameByID(ctx, id_uuid)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			app.notFound(w)
@@ -78,8 +89,8 @@ func (app *application) showGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := &templateData{Game: g}
-	app.render(w, r, "game.page.html", data)
+	data := &GameTemplateData{Game: game_data}
+	app.render(w, "game.page.html", data)
 }
 
 // func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {

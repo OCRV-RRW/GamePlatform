@@ -6,9 +6,26 @@ import (
 	"path/filepath"
 )
 
-type templateData struct {
-	Game  database.Game
+type GamePreview struct {
+	preivew []database.Preview
+	database.Game
+}
+
+type HomeTemplateData struct {
 	Games []database.Game
+}
+
+type GamePreviewData struct {
+	Preview []database.Preview
+	database.Game
+}
+
+type ShowTemplateData struct {
+	Game GamePreviewData
+}
+
+type GameTemplateData struct {
+	Game database.Game
 }
 
 func newTemplateCache(dir string) (map[string]*template.Template, error) {

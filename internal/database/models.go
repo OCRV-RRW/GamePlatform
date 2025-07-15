@@ -6,6 +6,7 @@ package database
 
 import (
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Game struct {
@@ -13,6 +14,17 @@ type Game struct {
 	Title       string
 	Description string
 	Src         string
-	Preview     string
-	Created     interface{}
+	Icon        string
+	Created     pgtype.Timestamp
+}
+
+type GamePreview struct {
+	GameID    uuid.UUID
+	PreviewID uuid.UUID
+}
+
+type Preview struct {
+	ID    uuid.UUID
+	Image string
+	Video *string
 }

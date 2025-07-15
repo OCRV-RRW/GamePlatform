@@ -12,8 +12,8 @@ import (
 )
 
 const getGameByID = `-- name: GetGameByID :one
-select id, title, description, src, preview, created from games
-where id = $1
+select g.id, title, description, src, icon, created from game g
+where g.id = $1
 `
 
 func (q *Queries) GetGameByID(ctx context.Context, id uuid.UUID) (Game, error) {
@@ -24,14 +24,40 @@ func (q *Queries) GetGameByID(ctx context.Context, id uuid.UUID) (Game, error) {
 		&i.Title,
 		&i.Description,
 		&i.Src,
-		&i.Preview,
+		&i.Icon,
 		&i.Created,
 	)
 	return i, err
 }
 
+const getGamePreview = `-- name: GetGamePreview :many
+select p.id, p.image, p.video from game_preview gp
+join preview p on p.id = gp.preview_id
+where gp.game_id = $1
+`
+
+func (q *Queries) GetGamePreview(ctx context.Context, gameID uuid.UUID) ([]Preview, error) {
+	rows, err := q.db.Query(ctx, getGamePreview, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Preview
+	for rows.Next() {
+		var i Preview
+		if err := rows.Scan(&i.ID, &i.Image, &i.Video); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGames = `-- name: GetGames :many
-select id, title, description, src, preview, created from games
+select id, title, description, src, icon, created from game
 order by created desc
 `
 
@@ -49,7 +75,7 @@ func (q *Queries) GetGames(ctx context.Context) ([]Game, error) {
 			&i.Title,
 			&i.Description,
 			&i.Src,
-			&i.Preview,
+			&i.Icon,
 			&i.Created,
 		); err != nil {
 			return nil, err

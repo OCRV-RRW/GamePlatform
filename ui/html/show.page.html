@@ -6,7 +6,6 @@
 <a href="/gameplatform">ГЛАВНАЯ</a>
 {{end}}
 
-
 {{define "main"}}
 {{with .Game}}
 <div class="gamepage">
@@ -14,8 +13,29 @@
         <strong>{{.Title}}</strong>
     </div>
     <div class="preview-container">
-        <img src="{{.Preview}}" alt="Превью игры {{.Title}}">
+        <img src="{{.Icon}}" alt="Превью игры {{.Title}}">
     </div>
+
+    <!-- Main Winow -->
+    <div>
+    {{range .Preview}}
+        {{if .Video}}
+            <video src="{{.Video}}">
+        {{else}}
+            <img src="{{.Image}}">
+        {{end}}
+    {{end}}
+    </div>
+
+    <div class="grid-item">
+    {{range .Preview}}
+        <img src="{{.Image}}">
+        {{if .Video}}
+            <p>Video</p>
+        {{end}}
+    {{end}}
+    </div>
+
     <pre>{{.Description}}</pre>
     <div class="metadata">
         <a class="play" href="/gameplatform/play?id={{.ID}}">ИГРАТЬ</a>

@@ -24,9 +24,6 @@ type application struct {
 }
 
 func main() {
-	//addr := flag.String("addr", ":4000", "HTTP address for start server")
-	// dsn := flag.String("dsn", "web:qazXSW@!12wsxCDE£@23@tcp(db:3306)/gamebox?parseTime=True", "MySQL DB sourse config")
-	// staticDir := flag.String("static-dir", "ui/static", "Path to static assets")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
