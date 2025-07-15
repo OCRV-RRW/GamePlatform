@@ -264,7 +264,6 @@ button:hover {
 }
 
 .gamepage .preview-container img{
-    width: 80%;
 }
 
 .gamepage pre {
@@ -472,4 +471,30 @@ iframe {
     table {
         font-size: 14px; /* Уменьшение размера шрифта таблицы */
     }
+}
+
+.strip_item {
+    height: 90px;
+    position: relative;
+    width: 160px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.strip_item.selected{
+    border: 6px solid #4EB722;
+}
+
+.preview_item {
+    opacity: 0;
+    position: absolute; 
+    width: 100%; 
+    height: 100%;
+    transition: opacity 0.3s ease;
+    z-index: 1
+}
+
+.preview_item.show {
+    opacity: 1;
+    z-index: 2;
 }
