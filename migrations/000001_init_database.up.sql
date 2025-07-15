@@ -1,7 +1,5 @@
 create extension if not exists "uuid-ossp";
 
--- create type preview_type as enum ('video', 'image');
-
 create table game (
 	id uuid primary key default uuid_generate_v4(),
 	title varchar(100) not null,

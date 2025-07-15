@@ -40,6 +40,7 @@ services:
       - 127.0.0.1:5432:5432
     volumes:
       - database-data:/var/lib/postgresql/data
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   database-data:
