@@ -4,7 +4,6 @@
 <a href="/gameplatform">ГЛАВНАЯ</a>
 {{end}}
 {{define "main"}}
-<h2>ВИТРИНА</h2>
 <div class="grid-container">
     {{if .Games}}
     {{range .Games}}
@@ -13,8 +12,7 @@
             <div class="preview-container">
                 <img src="{{.Icon}}" alt="Превью игры {{.Title}}">
             </div>
-            <p>{{.Title}}</p>
-            <a class="play" href="/gameplatform/play?id={{.ID}}">ИГРАТЬ</a>
+            <div class="play-button">{{.Title}}</div>
         </a>
     </div>
     {{end}}
