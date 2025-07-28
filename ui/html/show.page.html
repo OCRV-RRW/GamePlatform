@@ -2,7 +2,7 @@
 {{define "title"}}ИГРА {{.Game.Title}}{{end}}
 
 {{define "navigation"}}
-<a href="/gameplatform">ГЛАВНАЯ</a>
+<a href="/">ГЛАВНАЯ</a>
 {{end}}
 
 {{define "main"}}
@@ -43,7 +43,7 @@
     </div>
     <pre>{{.Description}}</pre>
     <div class="metadata">
-        <a class="play-button" href="/gameplatform/play?id={{.ID}}">ИГРАТЬ</a>
+        <a class="play-button" href="/play/{{.ID}}">ИГРАТЬ</a>
     </div>
 </div>
 <div class="screenshotModalWindow" style="display: none;">

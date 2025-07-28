@@ -5,26 +5,40 @@
 package database
 
 import (
+	"time"
+
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Game struct {
+type PlatformGame struct {
 	ID          uuid.UUID
 	Title       string
 	Description string
 	Src         string
 	Icon        string
-	Created     pgtype.Timestamp
+	Created     time.Time
 }
 
-type GamePreview struct {
+type PlatformGamePreview struct {
 	GameID    uuid.UUID
 	PreviewID uuid.UUID
 }
 
-type Preview struct {
+type PlatformPreview struct {
 	ID    uuid.UUID
 	Image string
 	Video *string
+}
+
+type PlatformUser struct {
+	ID               uuid.UUID
+	Name             string
+	Email            string
+	Password         string
+	IsAdmin          bool
+	VerificationCode string
+	Verified         bool
+	Birthday         *time.Time
+	Gender           *string
+	CreatedAt        time.Time
 }

@@ -1,0 +1,126 @@
+services:
+  server:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile.rel
+    ports:
+      - 4000:4000
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./ui:/myapp/ui 
+    environment:
+      DEBUG: false
+
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN}
+
+      COOKIE_SECURE: true
+      COOKIE_DOMAIN: "localhost"
+
+      DATABASE_URL: "user=${DB_USER} password=${DB_PASS} dbname=${DB_NAME} host=database sslmode=disable"
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_CONSOLE_PORT: ${MINIO_CONSOLE_PORT}
+      MINIO_STORAGE_PORT: ${MINIO_STORAGE_PORT}
+      MINIO_HOST: ${MINIO_HOST}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      MINIO_SECURE: true
+
+      ACCESS_TOKEN_PRIVATE_KEY: ${ACCESS_TOKEN_PRIVATE_KEY}
+      ACCESS_TOKEN_PUBLIC_KEY: ${ACCESS_TOKEN_PUBLIC_KEY}
+      ACCESS_TOKEN_EXPIRED_IN: ${ACCESS_TOKEN_EXPIRED_IN}
+      ACCESS_TOKEN_MAXAGE: ${ACCESS_TOKEN_MAXAGE}
+
+      REFRESH_TOKEN_PRIVATE_KEY: ${REFRESH_TOKEN_PRIVATE_KEY}
+      REFRESH_TOKEN_PUBLIC_KEY: ${REFRESH_TOKEN_PUBLIC_KEY}
+      REFRESH_TOKEN_EXPIRED_IN: ${REFRESH_TOKEN_EXPIRED_IN}
+      REFRESH_TOKEN_MAXAGE: ${REFRESH_TOKEN_MAXAGE}
+      RESET_PASSWORD_TOKEN_EXPIRED_IN: ${RESET_PASSWORD_TOKEN_EXPIRED_IN}
+
+      EMAIL_FROM: ${EMAIL_FROM}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_PORT: ${SMTP_PORT}
+
+  database:
+    image: postgres:17.4-alpine3.21
+    restart: unless-stopped
+    healthcheck:
+        test: [ "CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}" ]
+        interval: 1s
+        timeout: 1s
+        retries: 60
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - database-data:/var/lib/postgresql/data
+      # - ./init_db.sql:/docker-entrypoint-initdb.d/init.sql
+
+  migrate:
+    image: migrate/migrate
+    command: ["-source=file://migrations", "-database",  "postgres://test:test@database:5432/test_db?sslmode=disable", "up"]
+    restart: on-failure
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      database:
+        condition: service_healthy
+
+  redis:
+    image: redis:alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - redis_volume:/data
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    restart: always
+    volumes:
+      - minio-storage:/data
+      - minio-config:/root/.minio
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}" --address=":${MINIO_STORAGE_PORT}"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${MINIO_STORAGE_PORT}/minio/health/live" ]
+      interval: 2s 
+      timeout: 4s
+      retries: 10
+    ports:
+      - "${MINIO_STORAGE_PORT}:${MINIO_STORAGE_PORT}"
+      - "${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}"
+
+volumes:
+  app:
+  database-data:
+  redis_volume:
+  minio-storage:
+  minio-config:

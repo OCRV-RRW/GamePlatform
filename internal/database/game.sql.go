@@ -11,14 +11,27 @@ import (
 	"github.com/google/uuid"
 )
 
-const getGameByID = `-- name: GetGameByID :one
-select g.id, title, description, src, icon, created from game g
-where g.id = $1
+const createGame = `-- name: CreateGame :one
+insert into platform.game(title, description, src, icon)
+values ($1, $2, $3, $4)
+returning id, title, description, src, icon, created
 `
 
-func (q *Queries) GetGameByID(ctx context.Context, id uuid.UUID) (Game, error) {
-	row := q.db.QueryRow(ctx, getGameByID, id)
-	var i Game
+type CreateGameParams struct {
+	Title       string
+	Description string
+	Src         string
+	Icon        string
+}
+
+func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (PlatformGame, error) {
+	row := q.db.QueryRow(ctx, createGame,
+		arg.Title,
+		arg.Description,
+		arg.Src,
+		arg.Icon,
+	)
+	var i PlatformGame
 	err := row.Scan(
 		&i.ID,
 		&i.Title,
@@ -30,46 +43,73 @@ func (q *Queries) GetGameByID(ctx context.Context, id uuid.UUID) (Game, error) {
 	return i, err
 }
 
-const getGamePreview = `-- name: GetGamePreview :many
-select p.id, p.image, p.video from game_preview gp
-join preview p on p.id = gp.preview_id
-where gp.game_id = $1
+const createPreview = `-- name: CreatePreview :one
+with preview_insert as (
+insert into platform.preview(image, video)
+values ($2, $3)
+returning id, image, video
+)
+insert into platform.game_preview (game_id, preview_id)
+select $1, pi.id from preview_insert pi
+returning
+	(SELECT id FROM preview_insert) AS id,
+    (SELECT image FROM preview_insert) AS image,
+    (SELECT video FROM preview_insert) AS video
 `
 
-func (q *Queries) GetGamePreview(ctx context.Context, gameID uuid.UUID) ([]Preview, error) {
-	rows, err := q.db.Query(ctx, getGamePreview, gameID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Preview
-	for rows.Next() {
-		var i Preview
-		if err := rows.Scan(&i.ID, &i.Image, &i.Video); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type CreatePreviewParams struct {
+	GameID uuid.UUID
+	Image  string
+	Video  *string
 }
 
-const getGames = `-- name: GetGames :many
-select id, title, description, src, icon, created from game
+type CreatePreviewRow struct {
+	ID    uuid.UUID
+	Image string
+	Video *string
+}
+
+func (q *Queries) CreatePreview(ctx context.Context, arg CreatePreviewParams) (CreatePreviewRow, error) {
+	row := q.db.QueryRow(ctx, createPreview, arg.GameID, arg.Image, arg.Video)
+	var i CreatePreviewRow
+	err := row.Scan(&i.ID, &i.Image, &i.Video)
+	return i, err
+}
+
+const deleteGame = `-- name: DeleteGame :exec
+delete from platform.game
+where id = $1
+`
+
+func (q *Queries) DeleteGame(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteGame, id)
+	return err
+}
+
+const deletePreview = `-- name: DeletePreview :exec
+delete from platform.preview
+where id = $1
+`
+
+func (q *Queries) DeletePreview(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deletePreview, id)
+	return err
+}
+
+const getAllGames = `-- name: GetAllGames :many
+select id, title, description, src, icon, created from platform.game g
 order by created desc
 `
 
-func (q *Queries) GetGames(ctx context.Context) ([]Game, error) {
-	rows, err := q.db.Query(ctx, getGames)
+func (q *Queries) GetAllGames(ctx context.Context) ([]PlatformGame, error) {
+	rows, err := q.db.Query(ctx, getAllGames)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Game
+	var items []PlatformGame
 	for rows.Next() {
-		var i Game
+		var i PlatformGame
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
@@ -86,4 +126,122 @@ func (q *Queries) GetGames(ctx context.Context) ([]Game, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getGameByID = `-- name: GetGameByID :one
+select g.id, title, description, src, icon, created from platform.game g
+where g.id = $1
+`
+
+func (q *Queries) GetGameByID(ctx context.Context, id uuid.UUID) (PlatformGame, error) {
+	row := q.db.QueryRow(ctx, getGameByID, id)
+	var i PlatformGame
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Src,
+		&i.Icon,
+		&i.Created,
+	)
+	return i, err
+}
+
+const getGamePreview = `-- name: GetGamePreview :many
+select p.id, p.image, p.video from platform.game_preview gp
+join platform.preview p on p.id = gp.preview_id
+where gp.game_id = $1
+`
+
+func (q *Queries) GetGamePreview(ctx context.Context, gameID uuid.UUID) ([]PlatformPreview, error) {
+	rows, err := q.db.Query(ctx, getGamePreview, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PlatformPreview
+	for rows.Next() {
+		var i PlatformPreview
+		if err := rows.Scan(&i.ID, &i.Image, &i.Video); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGamePreviewByID = `-- name: GetGamePreviewByID :many
+select image, video from platform.game g
+join platform.game_preview gp on gp.id = g.id
+join platform.preview p on p.id = gp.id
+where g.id = $1
+order by p.video
+`
+
+type GetGamePreviewByIDRow struct {
+	Image string
+	Video *string
+}
+
+func (q *Queries) GetGamePreviewByID(ctx context.Context, id uuid.UUID) ([]GetGamePreviewByIDRow, error) {
+	rows, err := q.db.Query(ctx, getGamePreviewByID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGamePreviewByIDRow
+	for rows.Next() {
+		var i GetGamePreviewByIDRow
+		if err := rows.Scan(&i.Image, &i.Video); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPreviewByID = `-- name: GetPreviewByID :one
+select id, image, video from platform.preview p
+where id = $1
+`
+
+func (q *Queries) GetPreviewByID(ctx context.Context, id uuid.UUID) (PlatformPreview, error) {
+	row := q.db.QueryRow(ctx, getPreviewByID, id)
+	var i PlatformPreview
+	err := row.Scan(&i.ID, &i.Image, &i.Video)
+	return i, err
+}
+
+const updateGame = `-- name: UpdateGame :exec
+update platform.game set
+	title = $2,
+	description = $3,
+	src = $4,
+	icon = $5
+where id = $1
+`
+
+type UpdateGameParams struct {
+	ID          uuid.UUID
+	Title       string
+	Description string
+	Src         string
+	Icon        string
+}
+
+func (q *Queries) UpdateGame(ctx context.Context, arg UpdateGameParams) error {
+	_, err := q.db.Exec(ctx, updateGame,
+		arg.ID,
+		arg.Title,
+		arg.Description,
+		arg.Src,
+		arg.Icon,
+	)
+	return err
 }
