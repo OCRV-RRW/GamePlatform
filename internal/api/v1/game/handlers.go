@@ -243,8 +243,17 @@ func (h *GameHandler) CreatePreview(c *fiber.Ctx) error {
 		videoDstPath = &path
 	}
 
+	minioOrigin := h.Config.MinioOrigin + "/" + h.Config.AppBucket
+
+	imageCreatePath := minioOrigin + imageDstPath
+	var videoCreatePath *string
+	if videoFileHeader != nil {
+		path := minioOrigin + *videoDstPath
+		videoCreatePath = &path
+	}
+
 	// Start transaction
-	preview, err := h.Repository.CreatePreviewWithTransaction(gameId, imageDstPath, videoDstPath, func(preview *repository.GetPreview) error {
+	preview, err := h.Repository.CreatePreviewWithTransaction(gameId, imageCreatePath, videoCreatePath, func(preview *repository.GetPreview) error {
 		// Put image
 		imageFileReader, err := imageFileHeader.Open()
 		defer imageFileReader.Close()

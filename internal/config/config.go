@@ -23,6 +23,7 @@ type Config struct {
 	// MinioPublicHost string `env:"MINIO_PUBLIC_HOST" required:"true"`
 	MinioSecure    bool   `env:"MINIO_SECURE"      required:"true"`
 	MinioHost      string `env:"MINIO_HOST"        required:"true"`
+	MinioOrigin    string `env:"MINIO_ORIGIN"      required:"true"`
 	MinioAccessKey string `env:"MINIO_ACCESS_KEY"  required:"true"`
 	MinioSecretKey string `env:"MINIO_SECRET_KEY"  required:"true"`
 	AppBucket      string `env:"MINIO_BUCKET"      required:"true"`
