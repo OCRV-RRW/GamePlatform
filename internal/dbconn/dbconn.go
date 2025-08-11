@@ -7,16 +7,16 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type DatabaseConnection struct {
-	Queries    *database.Queries
-	Connection *pgx.Conn
+	Pool    *pgxpool.Pool
+	Queries *database.Queries
 }
 
 func NewDatabaseConnection(databaseURL string, ctx context.Context) DatabaseConnection {
-	conn, err := pgx.Connect(ctx, databaseURL)
+	pool, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
 		slog.Error(fmt.Sprintf("Couldn't load config: %s", err.Error()))
 		os.Exit(1)
@@ -24,14 +24,14 @@ func NewDatabaseConnection(databaseURL string, ctx context.Context) DatabaseConn
 		slog.Info("✅ Connected Successfully to the Database")
 	}
 
-	queries := database.New(conn)
+	queries := database.New(pool)
 
 	return DatabaseConnection{
-		Queries:    queries,
-		Connection: conn,
+		Pool:    pool,
+		Queries: queries,
 	}
 }
 
 func (conn DatabaseConnection) CloseConnection(ctx context.Context) {
-	conn.Connection.Close(ctx)
+	// conn.Connection.Close(ctx)
 }

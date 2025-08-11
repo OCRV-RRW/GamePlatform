@@ -146,7 +146,7 @@ func (r *UserRepository) GetByVerificationCode(verificationCode string) (*GetUse
 
 func (r *UserRepository) CreateUserWithTransaction(user CreateUser, callback func(CreateUser) error) (*GetUser, error) {
 	ctx := context.Background()
-	tx, err := r.db.Connection.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := r.db.Pool.BeginTx(ctx, pgx.TxOptions{})
 	tx_queries := r.db.Queries.WithTx(tx)
 
 	user_platform, err := tx_queries.CreateUser(ctx, r.conv.CreateUserToCreateUserParams(&user))

@@ -206,7 +206,7 @@ func (r *GameRepository) CreatePreview(gameId string, image string, video *strin
 
 func (r *GameRepository) CreatePreviewWithTransaction(gameId string, image string, video *string, callback func(*GetPreview) error) (*GetPreview, error) {
 	ctx := context.Background()
-	tx, err := r.db.Connection.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := r.db.Pool.BeginTx(ctx, pgx.TxOptions{})
 	tx_queries := r.db.Queries.WithTx(tx)
 
 	preview, err := createPreview(tx_queries, gameId, image, video)
