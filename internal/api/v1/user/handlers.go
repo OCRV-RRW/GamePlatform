@@ -188,6 +188,9 @@ func (h *UserHandler) updateUserByPayload(c *fiber.Ctx, old_user *repository.Get
 	if payload.Gender != nil && (*payload.Gender == "М" || *payload.Gender == "Ж") {
 		update_user.Gender = payload.Gender
 	}
+	if payload.Name != nil {
+		update_user.Name = *payload.Name
+	}
 	if payload.IsAdmin != nil {
 		if !old_user.IsAdmin && *payload.IsAdmin {
 			return api.ForbiddenError(c, "Permission denied")
@@ -203,6 +206,7 @@ func (h *UserHandler) updateUserByPayload(c *fiber.Ctx, old_user *repository.Get
 			return api.InternalServerError(c, err, "something went wrong")
 		}
 	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "success"})
 }
 
