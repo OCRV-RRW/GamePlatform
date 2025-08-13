@@ -10,14 +10,20 @@ import (
 )
 
 var (
-	Error             = errors.New("something went wrong")
-	ErrRecordNotFound = errors.New("record not found")
-	ErrDuplicatedKey  = errors.New("duplicated key")
+	Error                  = errors.New("something went wrong")
+	ErrRecordNotFound      = errors.New("record not found")
+	ErrDuplicatedKey       = errors.New("duplicated key")
+	ErrForeignKeyViolation = errors.New("foreign key violation")
 )
 
 func isDuplicateKeyError(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgErr.Code == "23505"
+}
+
+func isForeignKeyViolationError(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23503"
 }
 
 func SqlcErrToRepositoryErr(err error) error {
@@ -31,6 +37,10 @@ func SqlcErrToRepositoryErr(err error) error {
 
 	if isDuplicateKeyError(err) {
 		return ErrDuplicatedKey
+	}
+
+	if isForeignKeyViolationError(err) {
+		return ErrForeignKeyViolation
 	}
 
 	slog.Error(fmt.Sprintf("Register unprocessable error: %v", err))

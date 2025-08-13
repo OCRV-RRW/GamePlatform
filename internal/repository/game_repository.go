@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"log/slog"
 )
 
 type GetGame struct {
@@ -151,6 +152,7 @@ func (r *GameRepository) GetPreviewByID(id string) (*GetPreview, error) {
 
 	platform_preview, err := r.db.Queries.GetPreviewByID(ctx, previewId)
 	if err != nil {
+		slog.Error(err.Error())
 		return nil, SqlcErrToRepositoryErr(err)
 	}
 
@@ -211,7 +213,7 @@ func (r *GameRepository) CreatePreviewWithTransaction(gameId string, image strin
 
 	preview, err := createPreview(tx_queries, gameId, image, video)
 	if err != nil {
-		return nil, SqlcErrToRepositoryErr(err)
+		return nil, err
 	}
 	err = callback(preview)
 	if err == nil {

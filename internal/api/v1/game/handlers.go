@@ -10,6 +10,7 @@ import (
 	"gameplatform/internal/repository"
 	"gameplatform/internal/utils"
 	"gameplatform/internal/validation"
+	"log/slog"
 	"mime/multipart"
 	"path/filepath"
 	"slices"
@@ -189,16 +190,9 @@ func (h *GameHandler) UpdateGame(c *fiber.Ctx) error {
 func (h *GameHandler) DeleteGame(c *fiber.Ctx) error {
 	gameId := c.Params("id")
 
-	previews, err := h.Repository.GetPreviews(gameId)
-	if err != nil && !errors.Is(err, repository.ErrRecordNotFound) {
-		return api.InternalServerError(c, err, "couldn't remove game previews")
-	}
+	go h.deleteGameDataFromS3(gameId)
 
-	for _, preview := range previews {
-		err = h.deletePreviewFromS3(preview.Image, preview.Video)
-	}
-
-	err = h.Repository.DeleteGame(gameId)
+	err := h.Repository.DeleteGame(gameId)
 
 	if err != nil {
 		if errors.Is(err, repository.ErrRecordNotFound) {
@@ -225,6 +219,12 @@ func (h *GameHandler) DeleteGame(c *fiber.Ctx) error {
 // @Router		 /api/v1/games/ [post]
 func (h *GameHandler) CreatePreview(c *fiber.Ctx) error {
 	gameId := c.FormValue("gameId")
+
+	if gameId == "" {
+		return api.BadRequestParamError(c, []*api.Error{
+			{Code: api.IncorrectParameter, Parameter: "gameId", Message: "gameId is empty"},
+		})
+	}
 
 	randomCode := utils.GenerateCode(10)
 
@@ -281,7 +281,11 @@ func (h *GameHandler) CreatePreview(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
-		return api.InternalServerError(c, err, "something went wrong")
+		if errors.Is(err, repository.ErrForeignKeyViolation) {
+			return api.NotFoundError(c, fmt.Sprintf("game with id %s doesn't exist", gameId))
+		} else {
+			return api.InternalServerError(c, err, "something went wrong")
+		}
 	}
 
 	preview_response := h.Converter.GetPreviewToPreviewResponse(preview)
@@ -303,6 +307,8 @@ func (h *GameHandler) CreatePreview(c *fiber.Ctx) error {
 func (h *GameHandler) DeletePreview(c *fiber.Ctx) error {
 	previewId := c.Params("id")
 
+	slog.Info(fmt.Sprintf("gameID: %s ", previewId))
+
 	preview, err := h.Repository.GetPreviewByID(previewId)
 
 	if err != nil {
@@ -313,7 +319,12 @@ func (h *GameHandler) DeletePreview(c *fiber.Ctx) error {
 		}
 	}
 
-	err = h.deletePreviewFromS3(preview.Image, preview.Video)
+	var p_video_name *string = nil
+	if preview.Video != nil {
+		video_name := h.getBucketNameByPath(*preview.Video)
+		p_video_name = &video_name
+	}
+	err = h.deletePreviewFromS3(h.getBucketNameByPath(preview.Image), p_video_name)
 	if err != nil {
 		return api.InternalServerError(c, err, "couldn't remove preview resources from storage")
 	}
@@ -355,8 +366,11 @@ func processFormFile(c *fiber.Ctx, name string, availableFormtas []string, requi
 }
 
 func (h *GameHandler) deletePreviewFromS3(imagePath string, videoPath *string) error {
+	slog.Info(imagePath)
 	err := h.Minio.RemoveObject(imagePath)
+
 	if err != nil {
+		slog.Error(err.Error())
 		return err
 	}
 	if videoPath != nil {
@@ -367,4 +381,12 @@ func (h *GameHandler) deletePreviewFromS3(imagePath string, videoPath *string) e
 	}
 
 	return nil
+}
+
+func (h *GameHandler) deleteGameDataFromS3(id string) {
+	h.Minio.RemoveFolder("games/" + id + "/")
+}
+
+func (h *GameHandler) getBucketNameByPath(path string) string {
+	return strings.TrimLeft(path, h.Config.MinioOrigin+h.Config.AppBucket)
 }

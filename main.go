@@ -59,9 +59,6 @@ func main() {
 		Port:      conf.SMTPPort,
 	}
 
-	slog.Info(fmt.Sprint(smtp))
-
-	//
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)

@@ -63,3 +63,31 @@ func (m *MinioConnection) RemoveObject(path string) error {
 	err := m.MinioClient.RemoveObject(ctx, m.appBucket, path, minio.RemoveObjectOptions{})
 	return err
 }
+
+func (m *MinioConnection) RemoveFolder(path string) {
+	ctx := context.Background()
+
+	objectsCh := make(chan minio.ObjectInfo)
+
+	go func() {
+		defer close(objectsCh)
+		opts := minio.ListObjectsOptions{
+			Prefix:    path,
+			Recursive: true,
+		}
+
+		for object := range m.MinioClient.ListObjects(ctx, m.appBucket, opts) {
+			if object.Err != nil {
+				slog.Error(object.Err.Error())
+				continue
+			}
+			objectsCh <- object
+		}
+	}()
+
+	errorCh := m.MinioClient.RemoveObjects(ctx, m.appBucket, objectsCh, minio.RemoveObjectsOptions{})
+
+	for e := range errorCh {
+		slog.Error(fmt.Sprintf("Failed to remove %s, error: %v", e.ObjectName, e.Err))
+	}
+}
