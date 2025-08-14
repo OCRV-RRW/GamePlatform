@@ -222,8 +222,7 @@ const updateGame = `-- name: UpdateGame :exec
 update platform.game set
 	title = $2,
 	description = $3,
-	src = $4,
-	icon = $5
+	src = $4
 where id = $1
 `
 
@@ -232,7 +231,6 @@ type UpdateGameParams struct {
 	Title       string
 	Description string
 	Src         string
-	Icon        string
 }
 
 func (q *Queries) UpdateGame(ctx context.Context, arg UpdateGameParams) error {
@@ -241,7 +239,22 @@ func (q *Queries) UpdateGame(ctx context.Context, arg UpdateGameParams) error {
 		arg.Title,
 		arg.Description,
 		arg.Src,
-		arg.Icon,
 	)
+	return err
+}
+
+const updateGameIcon = `-- name: UpdateGameIcon :exec
+update platform.game set
+	icon = $2
+where id = $1
+`
+
+type UpdateGameIconParams struct {
+	ID   uuid.UUID
+	Icon string
+}
+
+func (q *Queries) UpdateGameIcon(ctx context.Context, arg UpdateGameIconParams) error {
+	_, err := q.db.Exec(ctx, updateGameIcon, arg.ID, arg.Icon)
 	return err
 }

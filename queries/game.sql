@@ -20,8 +20,12 @@ where gp.game_id = $1;
 update platform.game set
 	title = $2,
 	description = $3,
-	src = $4,
-	icon = $5
+	src = $4
+where id = $1;
+
+-- name: UpdateGameIcon :exec
+update platform.game set
+	icon = $2
 where id = $1;
 
 -- name: DeleteGame :exec

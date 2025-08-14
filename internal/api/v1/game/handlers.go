@@ -129,7 +129,7 @@ func (h *GameHandler) CreateGame(c *fiber.Ctx) error {
 		return api.BadRequestParamError(c, gameErrors)
 	}
 
-	game, err := h.Repository.CreateGame(payload.Title, payload.Description, payload.Src, payload.Icon)
+	game, err := h.Repository.CreateGame(payload.Title, payload.Description, payload.Src, "")
 
 	if err != nil {
 		return api.InternalServerError(c, err, "something went wrong")
@@ -165,7 +165,53 @@ func (h *GameHandler) UpdateGame(c *fiber.Ctx) error {
 
 	id := c.Params("id")
 
-	err := h.Repository.UpdateGame(id, payload.Title, payload.Description, payload.Src, payload.Icon)
+	err := h.Repository.UpdateGame(id, payload.Title, payload.Description, payload.Src)
+
+	if err != nil {
+		if errors.Is(err, repository.ErrRecordNotFound) {
+			return api.NotFoundError(c, "not found game")
+		} else {
+			return api.InternalServerError(c, err, "something went wrong")
+		}
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"status": "success"})
+}
+
+// UploadGameIcon godoc
+//
+// @Description  upload game icon
+// @Tags         Game
+// @Accept		 json
+// @Produce		 json
+// @Param        id   path string true "Game ID"
+// @Success		 200
+// @Failure      500
+// @Router		 /api/v1/games/{id}/icon [post]
+func (h *GameHandler) UploadGameIcon(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	iconFileHeader, err := processFormFile(c, "icon", []string{".png", ".jpg"}, true)
+	if iconFileHeader == nil {
+		return err
+	}
+
+	iconFileReader, err := iconFileHeader.Open()
+	defer iconFileReader.Close()
+	if err != nil {
+		return err
+	}
+
+	imageObjName := fmt.Sprintf("/games/%s/icon%s", id, filepath.Ext(iconFileHeader.Filename))
+	_, err = h.Minio.PutObject(imageObjName, iconFileReader)
+
+	if err != nil {
+		return api.InternalServerError(c, err, "something went wrong")
+	}
+
+	imagePath := h.s3ObjectNameToUrl(imageObjName)
+
+	err = h.Repository.UpdateGameIcon(id, imagePath)
 
 	if err != nil {
 		if errors.Is(err, repository.ErrRecordNotFound) {
@@ -210,7 +256,6 @@ func (h *GameHandler) DeleteGame(c *fiber.Ctx) error {
 // @Description	 create game preview
 // @Tags         Game
 // @Produce		 json
-// @Param        CreatePreviewInput body  DTO.CreatePreviewInput  true  "CreatePreviewInput"
 // @Success		 201 {object} api.SuccessResponse[DTO.PreviewResponseDTO]
 // @Failure      400 {object} api.ErrorResponse
 // @Failure      409 {object} api.ErrorResponse
@@ -233,22 +278,21 @@ func (h *GameHandler) CreatePreview(c *fiber.Ctx) error {
 	if imageFileHeader == nil {
 		return err
 	}
-	imageDstPath := fmt.Sprintf("/games/%s/preview/%s", gameId, randomCode+"_image"+filepath.Ext(imageFileHeader.Filename))
+	imageObjName := fmt.Sprintf("/games/%s/preview/%s", gameId, randomCode+"_image"+filepath.Ext(imageFileHeader.Filename))
 
 	// Process Video
 	videoFileHeader, err := processFormFile(c, "video", []string{".mp4"}, false)
-	var videoDstPath *string
+	var videoObjName *string
 	if videoFileHeader != nil {
 		path := fmt.Sprintf("/games/%s/preview/%s", gameId, randomCode+"_video"+filepath.Ext(videoFileHeader.Filename))
-		videoDstPath = &path
+		videoObjName = &path
 	}
 
-	minioOrigin := h.Config.MinioOrigin + "/" + h.Config.AppBucket
+	imageCreatePath := h.s3ObjectNameToUrl(imageObjName)
 
-	imageCreatePath := minioOrigin + imageDstPath
 	var videoCreatePath *string
 	if videoFileHeader != nil {
-		path := minioOrigin + *videoDstPath
+		path := h.s3ObjectNameToUrl(*videoObjName)
 		videoCreatePath = &path
 	}
 
@@ -261,7 +305,7 @@ func (h *GameHandler) CreatePreview(c *fiber.Ctx) error {
 			return err
 		}
 
-		_, err = h.Minio.PutObject(imageDstPath, imageFileReader)
+		_, err = h.Minio.PutObject(imageObjName, imageFileReader)
 
 		if err != nil {
 			return err
@@ -274,7 +318,7 @@ func (h *GameHandler) CreatePreview(c *fiber.Ctx) error {
 			if err != nil {
 				return err
 			}
-			_, err = h.Minio.PutObject(*videoDstPath, videoFileReader)
+			_, err = h.Minio.PutObject(*videoObjName, videoFileReader)
 		}
 
 		return err
@@ -306,8 +350,6 @@ func (h *GameHandler) CreatePreview(c *fiber.Ctx) error {
 // @Router		 /api/v1/games/preview/ [delete]
 func (h *GameHandler) DeletePreview(c *fiber.Ctx) error {
 	previewId := c.Params("id")
-
-	slog.Info(fmt.Sprintf("gameID: %s ", previewId))
 
 	preview, err := h.Repository.GetPreviewByID(previewId)
 
@@ -343,8 +385,10 @@ func (h *GameHandler) DeletePreview(c *fiber.Ctx) error {
 }
 
 func processFormFile(c *fiber.Ctx, name string, availableFormtas []string, require bool) (fileHeader *multipart.FileHeader, err error) {
-	fileHeader, _ = c.FormFile(name)
+	fileHeader, err = c.FormFile(name)
+
 	if fileHeader == nil {
+		slog.Error(err.Error())
 		if require {
 			return nil, c.Status(fiber.StatusBadRequest).JSON(api.NewErrorResponse([]*api.Error{
 				{Code: api.IncorrectParameter, Parameter: name, Message: "file is nil"},
@@ -366,7 +410,6 @@ func processFormFile(c *fiber.Ctx, name string, availableFormtas []string, requi
 }
 
 func (h *GameHandler) deletePreviewFromS3(imagePath string, videoPath *string) error {
-	slog.Info(imagePath)
 	err := h.Minio.RemoveObject(imagePath)
 
 	if err != nil {
@@ -389,4 +432,8 @@ func (h *GameHandler) deleteGameDataFromS3(id string) {
 
 func (h *GameHandler) getBucketNameByPath(path string) string {
 	return strings.TrimLeft(path, h.Config.MinioOrigin+h.Config.AppBucket)
+}
+
+func (h *GameHandler) s3ObjectNameToUrl(name string) string {
+	return h.Config.MinioOrigin + "/" + h.Config.AppBucket + name
 }

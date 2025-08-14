@@ -114,7 +114,7 @@ func (r *GameRepository) CreateGame(title string, description string, src string
 	return &result, nil
 }
 
-func (r *GameRepository) UpdateGame(id string, title string, description string, scr string, icon string) error {
+func (r *GameRepository) UpdateGame(id string, title string, description string, scr string) error {
 	ctx := context.Background()
 	game_id, err := uuid.Parse(id)
 	if err != nil {
@@ -126,7 +126,21 @@ func (r *GameRepository) UpdateGame(id string, title string, description string,
 		Title:       title,
 		Description: description,
 		Src:         scr,
-		Icon:        icon,
+	})
+
+	return SqlcErrToRepositoryErr(err)
+}
+
+func (r *GameRepository) UpdateGameIcon(id string, icon string) error {
+	ctx := context.Background()
+	game_id, err := uuid.Parse(id)
+	if err != nil {
+		return SqlcErrToRepositoryErr(err)
+	}
+
+	err = r.db.Queries.UpdateGameIcon(ctx, database.UpdateGameIconParams{
+		ID:   game_id,
+		Icon: icon,
 	})
 
 	return SqlcErrToRepositoryErr(err)

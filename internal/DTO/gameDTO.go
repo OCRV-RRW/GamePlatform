@@ -33,14 +33,12 @@ type CreateGameInput struct {
 	Title       string `json:"title" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	Src         string `json:"src" validate:"required"`
-	Icon        string `json:"icon" validate:"required"`
 }
 
 type UpdateGameInput struct {
 	Title       string `json:"title" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	Src         string `json:"src" validate:"required"`
-	Icon        string `json:"icon" validate:"required"`
 }
 
 type PreviewResponseDTO struct {

@@ -16,5 +16,6 @@ func AddRoutes(router fiber.Router, handler *GameHandler, userMiddleware *middle
 	game.Get("/:id", middleware.CheckUUID, userMiddleware.DeserializeUser, handler.GetGame)
 	game.Post("/", userMiddleware.DeserializeUser, middleware.AdminUser, handler.CreateGame)
 	game.Patch("/:id", middleware.CheckUUID, userMiddleware.DeserializeUser, middleware.AdminUser, handler.UpdateGame)
+	game.Post("/:id/icon", middleware.CheckUUID, userMiddleware.DeserializeUser, middleware.AdminUser, handler.UploadGameIcon)
 	game.Delete("/:id", middleware.CheckUUID, userMiddleware.DeserializeUser, middleware.AdminUser, handler.DeleteGame)
 }

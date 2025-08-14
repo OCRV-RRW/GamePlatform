@@ -3,29 +3,14 @@ definitions:
     properties:
       description:
         type: string
-      icon:
-        type: string
       src:
         type: string
       title:
         type: string
     required:
     - description
-    - icon
     - src
     - title
-    type: object
-  DTO.CreatePreviewInput:
-    properties:
-      game_id:
-        type: string
-      image:
-        type: string
-      video:
-        type: string
-    required:
-    - game_id
-    - image
     type: object
   DTO.ForgotPasswordInput:
     properties:
@@ -142,15 +127,12 @@ definitions:
     properties:
       description:
         type: string
-      icon:
-        type: string
       src:
         type: string
       title:
         type: string
     required:
     - description
-    - icon
     - src
     - title
     type: object
@@ -543,13 +525,6 @@ paths:
       - Game
     post:
       description: create game preview
-      parameters:
-      - description: CreatePreviewInput
-        in: body
-        name: CreatePreviewInput
-        required: true
-        schema:
-          $ref: '#/definitions/DTO.CreatePreviewInput'
       produces:
       - application/json
       responses:
@@ -628,6 +603,26 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/DTO.UpdateGameInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+      tags:
+      - Game
+  /api/v1/games/{id}/icon:
+    post:
+      consumes:
+      - application/json
+      description: upload game icon
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:

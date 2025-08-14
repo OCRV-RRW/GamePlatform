@@ -417,17 +417,6 @@ const docTemplate = `{
                 "tags": [
                     "Game"
                 ],
-                "parameters": [
-                    {
-                        "description": "CreatePreviewInput",
-                        "name": "CreatePreviewInput",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/DTO.CreatePreviewInput"
-                        }
-                    }
-                ],
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -573,6 +562,37 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/DTO.UpdateGameInput"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/games/{id}/icon": {
+            "post": {
+                "description": "upload game icon",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -735,7 +755,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "description",
-                "icon",
                 "src",
                 "title"
             ],
@@ -743,31 +762,10 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "icon": {
-                    "type": "string"
-                },
                 "src": {
                     "type": "string"
                 },
                 "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "DTO.CreatePreviewInput": {
-            "type": "object",
-            "required": [
-                "game_id",
-                "image"
-            ],
-            "properties": {
-                "game_id": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "video": {
                     "type": "string"
                 }
             }
@@ -946,15 +944,11 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "description",
-                "icon",
                 "src",
                 "title"
             ],
             "properties": {
                 "description": {
-                    "type": "string"
-                },
-                "icon": {
                     "type": "string"
                 },
                 "src": {
