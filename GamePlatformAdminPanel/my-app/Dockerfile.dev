@@ -1,0 +1,7 @@
+FROM node:18-alpine
+WORKDIR /app
+COPY GamePlatformAdminPanel/my-app/package*.json ./
+RUN npm install 
+COPY GamePlatformAdminPanel/my-app .
+EXPOSE 3000
+CMD ["npm", "start"]

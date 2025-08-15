@@ -119,6 +119,20 @@ services:
       - "${MINIO_STORAGE_PORT}:${MINIO_STORAGE_PORT}"
       - "${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}"
 
+  admin-panel: 
+    container_name: admin-panel
+    build:
+      dockerfile: ./GamePlatformAdminPanel/my-app/Dockerfile.dev
+    ports:
+      - 3000:3000
+    volumes: 
+      - ./GamePlatformAdminPanel/my-app:/app
+    environment: 
+      - CHOKIDAR_USERPOLLING=true
+    depends_on:
+      - server
+    restart: unless-stopped
+
 volumes:
   app:
   database-data:

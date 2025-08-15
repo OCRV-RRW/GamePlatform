@@ -1,0 +1,142 @@
+label.required:after {
+    color: red;
+    content: "* ";
+}
+
+input.invalid {
+    border: 2px solid red;
+    background-color: rgb(255 0 0 / 20%);
+}
+
+input {
+    border: 1px solid rgba(0, 0, 0, 0.23);;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font: inherit;
+    font-size: 16px;
+    border-radius: 4px;
+    display: inline-flex;   
+    justify-content: center;
+    box-sizing: content-box;
+    padding: 18px; 
+    border: 0;
+    min-width: 0;
+    max-width: 226px;
+    width: 100%;
+    background: none;
+    height: 1.4375em;
+    background: none;
+    z-index: inherit;
+}
+
+button {
+    border: 2px solid black;
+    border-radius: 20px;
+    width: auto;
+    height: 30px;
+}
+
+div.gameHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 5%;
+    border: 5px solid rgb(53, 69, 82);
+    border-radius: 25px;
+}
+
+div.gameView {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.noSelect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
+button:hover {
+    scale: 1.05 1.05;
+    transition-property: scale;
+    transition-timing-function: ease-out;
+    transition-duration: 100ms;
+}
+
+button:active:enabled {
+    scale: 1.1 1.1;
+    transition-property: scale;
+    transition-timing-function: ease-out;
+    transition-duration: 100ms;
+}
+
+div.homeHeader {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border: 5px solid rgb(53, 69, 82);
+    border-radius: 25px;
+    margin-bottom: 10px;
+}
+
+div.scrollableContainer {
+    display: flex;      
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.gameListLink {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 50px;
+    background-color: rgba(0, 0, 0, 0.795);
+    padding-left: 5px;
+    line-height: 5px;
+}
+
+.gameListLink:hover {
+    scale: 1.005;
+}
+
+.customFieldset {
+    position: absolute; 
+    text-align: left;
+    margin: 0;
+    top: -5px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    padding: 0 8px;
+    pointer-events: none;
+    border-radius: inherit;
+    border-style: solid;
+    border-width: 1px;
+    overflow: hidden;
+    min-width: 0;
+    border-color: rgba(0, 0, 0, 0.23);
+    border-radius: 4px;
+    z-index: 1;
+}
+
+.customFieldset:hover {
+    outline: 2px solid black;
+}
+
+input:focus {
+    outline: none; 
+}
