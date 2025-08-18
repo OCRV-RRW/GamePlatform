@@ -202,21 +202,21 @@ func (h *AuthHandler) LogoutUser(c *fiber.Ctx) error {
 	c.Cookie(&fiber.Cookie{
 		Name:     "access_token",
 		Value:    "",
-		Domain:   ".ocrv-game.ru",
+		Domain:   h.Config.CookieDomain,
 		Expires:  expired,
 		SameSite: "none",
 	})
 	c.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
 		Value:    "",
-		Domain:   ".ocrv-game.ru",
+		Domain:   h.Config.CookieDomain,
 		Expires:  expired,
 		SameSite: "none",
 	})
 	c.Cookie(&fiber.Cookie{
 		Name:     "logged_in",
 		Value:    "",
-		Domain:   ".ocrv-game.ru",
+		Domain:   h.Config.CookieDomain,
 		Expires:  expired,
 		SameSite: "none",
 	})

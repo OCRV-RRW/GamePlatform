@@ -23,7 +23,7 @@ services:
       CLIENT_ORIGIN: ${CLIENT_ORIGIN}
 
       COOKIE_SECURE: false
-      COOKIE_DOMAIN: "localhost"
+      COOKIE_DOMAIN: ""
 
       DATABASE_URL: "user=${DB_USER} password=${DB_PASS} dbname=${DB_NAME} host=database sslmode=disable"
       REDIS_HOST: ${REDIS_HOST}
@@ -127,6 +127,7 @@ services:
       - 3000:3000
     volumes: 
       - ./GamePlatformAdminPanel/my-app:/app
+      - /app/node_modules
     environment: 
       - CHOKIDAR_USERPOLLING=true
     depends_on:

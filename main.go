@@ -101,6 +101,7 @@ func main() {
 	}
 
 	slog.Info(fmt.Sprintf("Cookie Secure: %v", conf.CookieSecure))
+	slog.Info(fmt.Sprintf("Cookie Domain: %v", conf.CookieDomain))
 
 	app.Use(swagger.New(swagger_conf))
 	loggerMiddelware := flogger.NewLoggerMiddelware(conf.Debug)
