@@ -4,7 +4,7 @@ create schema platform;
 
 create table platform.user(
 	id                uuid primary key default uuid_generate_v4(),
-	name              varchar(200) unique not null,
+	name              varchar(200) not null,
 	email             varchar(200) not null unique,
 	password          varchar(200) not null,
 	is_admin          boolean not null default false ,

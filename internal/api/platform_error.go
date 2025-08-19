@@ -7,16 +7,16 @@ import (
 )
 
 var (
-	IncorrectParameter       = "INCORRECT_PARAMETER"
-	ServerError              = "SERVER_ERROR"
-	NotFound                 = "NOT_FOUND"
-	InvalidEmailOrPassword   = "INVALID_EMAIL_OR_PASSWORD"
-	UnprocessableEntity      = "UNPROCESSABLE_ENTITY"
-	EmailOrNameAlreadyExists = "EMAIL_OR_NAME_ALREADY_EXISTS"
-	InvalidVerificationCode  = "INVALID_VERIFICATION_CODE"
-	Forbidden                = "FORBIDDEN"
-	Unauthorized             = "UNAUTHORIZED"
-	TokenInvalidOrExpired    = "TOKEN_INVALID_OR_EXPIRED"
+	IncorrectParameter      = "INCORRECT_PARAMETER"
+	ServerError             = "SERVER_ERROR"
+	NotFound                = "NOT_FOUND"
+	InvalidEmailOrPassword  = "INVALID_EMAIL_OR_PASSWORD"
+	UnprocessableEntity     = "UNPROCESSABLE_ENTITY"
+	EmailAlreadyExists      = "EMAIL_ALREADY_EXISTS"
+	InvalidVerificationCode = "INVALID_VERIFICATION_CODE"
+	Forbidden               = "FORBIDDEN"
+	Unauthorized            = "UNAUTHORIZED"
+	TokenInvalidOrExpired   = "TOKEN_INVALID_OR_EXPIRED"
 )
 
 type SuccessResponse[T any] struct {

@@ -110,7 +110,7 @@ func (h *AuthHandler) SignUpUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(api.NewErrorResponse(userErrors))
 	} else if errors.Is(err, repository.ErrDuplicatedKey) {
 		return c.Status(fiber.StatusConflict).JSON(api.NewErrorResponse([]*api.Error{
-			{Code: api.EmailOrNameAlreadyExists, Message: "email or name already exists"},
+			{Code: api.EmailAlreadyExists, Message: "email already exists"},
 		}))
 	} else if err != nil {
 		return api.InternalServerError(c, err, "Something went wrong on sending email")
