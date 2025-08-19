@@ -51,7 +51,7 @@ export default function UsersList() {
             {!loading && 
                 <div className={styles.scrollableContainer}>
                     <AdminList listWithCreate={false}>
-                        {users?.map((user) => 
+                        {users && users.length > 0 ? users?.map((user) => 
                           <AdminListItem
                              key={user.id}
                              title={user.name!}
@@ -70,7 +70,8 @@ export default function UsersList() {
                                     dispatch(set_status(reason))
                                 })}
                             />
-                        )}
+                        ) : 
+                        <h2>Пока нет пользователей</h2>}
                     </AdminList>
                 </div>}
         </>

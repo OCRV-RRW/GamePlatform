@@ -1,8 +1,6 @@
 import { CreateGameForm } from "./app/api_forms_interfaces"
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material"
 import { OpenCreateDialogWindowContext } from "./GamesList"
-import { useAppDispatch } from "./app/hooks"
-import { updateToken } from "./reducers/UserSlice"
 
 export interface AddGameEntityDialogProps {
     createGameEntityFetch: (form: CreateGameForm) => Promise<void>
@@ -10,8 +8,6 @@ export interface AddGameEntityDialogProps {
 }
 
 export function AddGameEntityDialog({createGameEntityFetch: createGameEntityFetch, isOpen}: AddGameEntityDialogProps) {
-    const dispatch = useAppDispatch()
-
     return <>
         <OpenCreateDialogWindowContext.Consumer>
             {setOpen => (
@@ -26,13 +22,11 @@ export function AddGameEntityDialog({createGameEntityFetch: createGameEntityFetc
                                 const created_entity_title = form_json.title
                                 const created_entity_description = form_json.description
                                 const created_entity_src = form_json.src
-                                const created_entity_icon = form_json.icon
 
                                 createGameEntityFetch({
                                     'title': created_entity_title,
                                     'description': created_entity_description,
-                                    'src': created_entity_src,
-                                    'icon': created_entity_icon
+                                    'src': created_entity_src
                                 }).then(() => setOpen(false))    
                             }
                         }
@@ -66,16 +60,6 @@ export function AddGameEntityDialog({createGameEntityFetch: createGameEntityFetc
                             id="src"
                             name="src"
                             label="url на источник"
-                            type='text'
-                            fullWidth
-                            variant='outlined' />
-                        <TextField 
-                            autoFocus
-                            required
-                            margin="dense"
-                            id="icon"
-                            name="icon"
-                            label="иконка"
                             type='text'
                             fullWidth
                             variant='outlined' />

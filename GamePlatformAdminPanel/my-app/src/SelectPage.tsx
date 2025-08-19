@@ -4,6 +4,7 @@ import {
     ADMIN_PANEL_PATH,
     FORGOT_PASSWORD_PATH,
     LOGIN_PATH, 
+    NOT_ADMIN_WARNING_PAGE_PATH, 
     REGISTER_PATH, 
     REGISTER_VERIFY_EMAIL_PATH, 
     RESET_PASSWORD_PATH, 
@@ -12,14 +13,13 @@ import {
 } from "./BrowserPathes";
 import Register from "./Register";
 import Login from "./Login";
-// import ForgotPassword from "../forgot-password/ForgotPassword";
 import VerifyEmail from "./VerifyEmail";
-// import ResetPassword from "../reset-password/ResetPassword";
 import UpdateGamePage from "./UpdateGamePage";
 import AdminPanelHome from "./Home";
 import UpdateUserPage from "./UpdateUserPage";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPasword";
+import NotAdminWarningPage from "./NotAdminWarningPage";
 
 export default function SelectPath() {
     const path = useContext(PathContext)
@@ -34,6 +34,7 @@ export default function SelectPath() {
             {path: UPDATE_GAME_PATH, page: <UpdateGamePage />},
             {path: ADMIN_PANEL_PATH, page: <AdminPanelHome />},
             {path: UPDATE_USER_PATH, page: <UpdateUserPage />},
+            {path: NOT_ADMIN_WARNING_PAGE_PATH, page: <NotAdminWarningPage />}
         ]
     )
     

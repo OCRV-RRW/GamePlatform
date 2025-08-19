@@ -42,16 +42,16 @@ export default function LoadFileComponent({buttonText, emptyWindowText, url, loa
                         </Button>
                         {!url
                     ? <>
-                        <Box style={{width: "300px", height: "300px"}}>
+                        <Box style={{width: "300px", height: "auto"}}>
                             <h5>{emptyWindowText}</h5>
                         </Box>
                     </>
                     : <>
                         {isVideo ? 
-                        <video style={{width: "300px", height: "300px"}}
+                        <video style={{width: "100%", height: "auto", display: 'block'}}
                             src={url}
                         /> : 
-                        <img style={{width: "300px", height: "300px"}}
+                        <img style={{width: "100%", height: "auto", display: 'block'}}
                             src={url}
                         />
                         }

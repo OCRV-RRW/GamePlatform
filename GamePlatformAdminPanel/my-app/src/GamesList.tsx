@@ -37,7 +37,7 @@ export default function GamesList() {
                 dispatch(updateToken({access_token: fetch_data.access_token}))
                 return fetch_data.response.json().then((json) => {
                     let games : Array<Game> = json.data.games as Array<Game>
-                    setGameNames(games.map<GameListGamesName>((game) => {
+                    setGameNames(games?.map<GameListGamesName>((game) => {
                         return {id: game.id, title: game.title}
                     }))
                     setLoading(false)
@@ -65,7 +65,7 @@ export default function GamesList() {
             {!loading && 
                 <div className={styles.scrollableContainer}>
                     <AdminList>
-                        {gameNames?.map((g) => 
+                        {gameNames && gameNames.length > 0 ? gameNames?.map((g) => 
                             <AdminListItem 
                                 key={g.id} 
                                 title={g.title} 
@@ -82,7 +82,7 @@ export default function GamesList() {
                                     }
                                     dispatch(set_status(reason)) 
                                 })} 
-                            />)}
+                            />) : <h2>Пока нет игр</h2>}
                     </AdminList>
                 </div>}
                 {<AddGameEntityDialog 

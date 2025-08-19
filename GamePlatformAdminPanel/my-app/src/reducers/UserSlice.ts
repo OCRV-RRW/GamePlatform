@@ -87,6 +87,10 @@ const userSlice = createSlice({
         updateToken(state, action: PayloadAction<{access_token: string}>) {
             rewrite_access_token(action.payload.access_token)
             state.access_token = action.payload.access_token
+        },
+        updateUserData(state, action: PayloadAction<{userData: User}>) {
+            rewrite_user_data(action.payload.userData)
+            state.user_data = action.payload.userData
         }
     },
     extraReducers: (builder) => {
@@ -139,7 +143,7 @@ const userSlice = createSlice({
       } 
 })
 
-export const { updateToken } = userSlice.actions
+export const { updateToken, updateUserData } = userSlice.actions
 export const selectAccessToken = () => store.getState().user.access_token
 export const selectUserData = () => store.getState().user.user_data
 export const selectExpiredIn = () => store.getState().user.expired_in

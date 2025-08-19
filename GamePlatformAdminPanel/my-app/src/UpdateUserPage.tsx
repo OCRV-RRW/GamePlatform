@@ -1,10 +1,10 @@
 import { useLocation } from "react-router"
-import { useAppDispatch } from "./app/hooks"
+import { useAppDispatch, useAppSelector } from "./app/hooks"
 import { useCallback, useEffect, useState } from "react"
 import { User, UserGender } from "./app/user_type"
 import { Controller, useForm } from "react-hook-form"
 import { fetch_get_user } from "./api/getUserApi"
-import { updateToken } from "./reducers/UserSlice"
+import { selectUserData, updateToken } from "./reducers/UserSlice"
 import { FORBIDDEN } from "./ResponseCodes"
 import { set_status } from "./reducers/PageSlice"
 import AdminHeader from "./Header"
@@ -19,6 +19,7 @@ import { ADMIN_PANEL_PATH } from "./BrowserPathes"
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
+import { updateUserData as updateUserDataState } from "./reducers/UserSlice"
 
 type UpdateUserFormFields = {
     birthday: string,
@@ -30,6 +31,7 @@ type UpdateUserFormFields = {
 export default function UpdateUserPage() {
     const dispatch = useAppDispatch()
     const [userData, setUserData] = useState<User>()
+    const me = useAppSelector(selectUserData)
     const location = useLocation()
 
     const { register, handleSubmit, control, getValues, setValue } = useForm<UpdateUserFormFields>(
@@ -68,6 +70,22 @@ export default function UpdateUserPage() {
         console.log('dsd')
         fetch_update_user(updateUserData, userData?.id ?? "")
             .then(() => {
+                if (userData?.id === me?.id)
+                    fetch_get_user("?id=" + (userData?.id?.toString() ?? ""))
+                        .then(async (data) => {
+                            dispatch(updateToken({ access_token: data.access_token }))
+                            return data.response.json()
+                                .then((json) => {
+                                    dispatch(updateUserDataState({userData: json.data?.users[0] as User}))
+                                }
+                            )
+                        }, (reason) => {
+                            if (BAD_STATUS_SERVER_RESPONSE_CLIENT_WARNING_REG_EXP.test(reason)) {
+                                dispatch(updateToken({access_token: ""}))
+                                return
+                            }
+                            dispatch(set_status(reason))
+                        })
                 window.location.reload()
             },
             (reason) => {
@@ -172,33 +190,6 @@ export default function UpdateUserPage() {
                                 </label>
                         </Box>
                     </Box>
-                    {/* <Box sx={{
-                        margin: 1
-                    }}>
-                         <FormControl>
-                            <Controller render={
-                                ({ field: { onChange, value }}) => (
-                                    <>
-                                        <label style={{color: grey[700], fontSize: 12, padding: 5}}>Уровень</label>
-                                        <Select
-                                            value={value}
-                                            onChange={onChange}
-                                            >
-                                                <MenuItem value={0}>0</MenuItem>
-                                                <MenuItem value={1}>1</MenuItem>
-                                                <MenuItem value={2}>2</MenuItem>
-                                                <MenuItem value={3}>3</MenuItem>
-                                                <MenuItem value={4}>4</MenuItem>
-                                                <MenuItem value={5}>5</MenuItem>
-                                        </Select>
-                                    </>
-                                )
-                            }
-                            control={control}
-                            name="grade"
-                            />
-                        </FormControl>
-                    </Box> */}
                     <Box sx={{
                         margin: 1
                     }}>

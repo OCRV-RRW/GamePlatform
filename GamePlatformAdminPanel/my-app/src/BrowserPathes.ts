@@ -20,3 +20,5 @@ export const UPDATE_GAME_PATH: string = ADMIN_PANEL_PATH + "/update-game"
 export const SKILLS_LIST_PATH: string = ADMIN_PANEL_PATH + "/skills-list"
 export const UPDATE_SKILL_PATH: string = ADMIN_PANEL_PATH + "/update-skill"
 export const UPDATE_USER_PATH: string = ADMIN_PANEL_PATH + "/update-user"
+
+export const NOT_ADMIN_WARNING_PAGE_PATH: string = "/no-admin-warning"

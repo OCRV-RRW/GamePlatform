@@ -118,6 +118,19 @@ services:
     ports:
       - "${MINIO_STORAGE_PORT}:${MINIO_STORAGE_PORT}"
       - "${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}"
+    
+  admin-panel: 
+    container_name: admin-panel
+    build:
+      dockerfile: ./GamePlatformAdminPanel/my-app/Dockerfile.rel
+    ports:
+      - 3000:80
+    volumes: 
+      - ./GamePlatformAdminPanel/my-app:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    restart: unless-stopped
 
 volumes:
   app:

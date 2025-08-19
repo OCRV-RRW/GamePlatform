@@ -3,6 +3,7 @@ import {
     ADMIN_PANEL_PATH, 
     FORGOT_PASSWORD_PATH,  
     LOGIN_PATH, 
+    NOT_ADMIN_WARNING_PAGE_PATH, 
     REGISTER_PATH, 
     REGISTER_VERIFY_EMAIL_PATH, 
     RESET_PASSWORD_PATH, 
@@ -16,6 +17,7 @@ import CheckIsAdmin from "./check-auth/CheckIsAdmin";
 import { useAppDispatch } from "./app/hooks";
 import { useEffect } from "react";
 import { set_status } from "./reducers/PageSlice";
+import CheckNotIsAdmin from "./check-auth/CheckNotIsAdmin";
 
 function DefaultAppRouterPage() {
     const dispatch = useAppDispatch()
@@ -82,6 +84,13 @@ export default function AppRouter() {
                             <CheckIsAdmin>
                                 <Path path={UPDATE_USER_PATH} />
                             </CheckIsAdmin>
+                        </CheckAuth>
+                    } />
+                    <Route path={NOT_ADMIN_WARNING_PAGE_PATH} element={
+                        <CheckAuth>
+                            <CheckNotIsAdmin>
+                                <Path path={NOT_ADMIN_WARNING_PAGE_PATH} />
+                            </CheckNotIsAdmin>
                         </CheckAuth>
                     } />
                     <Route path="*" element={<DefaultAppRouterPage />}

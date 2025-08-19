@@ -28,14 +28,12 @@ export interface ResetPasswordForm extends ApiForm {
 
 export interface UpdateGameForm extends ApiForm {
     description: string,
-    icon: string,
     src: string,
     title: string
 }
 
 export interface CreateGameForm extends ApiForm {
     description: string,
-    icon: string,
     src: string
     title: string
 }

@@ -23,7 +23,6 @@ import LoadFileComponent from "./LoadFileComponent"
 type UpdateGameFormFields = {
     description: string,
     title: string,
-    icon: string,
     src: string
 }
 
@@ -40,7 +39,7 @@ export default function UpdateGamePage() {
     const { register, handleSubmit, formState: {errors}, reset, control, getValues, setValue } = useForm<UpdateGameFormFields>(
         {
             mode: 'onChange',
-            defaultValues: {description: "", title: "", icon: "", src: ""}
+            defaultValues: {description: "", title: "", src: ""}
         }
     )
 
@@ -81,7 +80,6 @@ export default function UpdateGamePage() {
         let updateGameFormData: UpdateGameForm = {
             description: form_data.description,
             title: form_data.title,
-            icon: form_data.icon,
             src: form_data.src
         }
         console.log(updateGameFormData)
@@ -125,7 +123,8 @@ export default function UpdateGamePage() {
         {!gameData && <Loader />}
         {gameData && 
         <>
-        <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}>
+        <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', padding: 2}}>
+            <h2>Иконка игры</h2>
             <LoadFileComponent 
                 buttonText="Выберите картинку"
                 emptyWindowText="Нет картинки"
@@ -134,25 +133,25 @@ export default function UpdateGamePage() {
                 accept="image/*"
                 isVideo={false}
                 />
-            </Box>
-            <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2, flexDirection: 'column'}}>
+        </Box>
+            <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2, flexDirection: 'column', border: 1}}>
+                <h2>Превью Игры</h2>
                 {gamePreviews &&
+                gamePreviews.length > 0 ?
                 gamePreviews.map((p, index) => 
                     <UpdateGamePreviewItem key={index} game_id={gameData.id} initPreviewData={p} />
-                )}
+                ) : 
+                <h3>Пока не добавлено превью</h3>}
+                <Button style={{margin: 10}} type='submit' variant='outlined' onClick={addGamePreview}>
+                    +
+                </Button>
             </Box>
-            <Button style={{margin: 10}} type='submit' variant='outlined' onClick={addGamePreview}>
-                +
-            </Button>
          <form onSubmit={handleSubmit((data) => onUpdateGame(data))}>
             <div style={{margin: 10}}>
                 <TextField id="description" {...register('description')} placeholder="описание..." label="Описание игры" />
             </div>
             <div style={{margin: 10}}>
                 <TextField id="title" {...register('title')} placeholder="название..." label="Название игры" />
-            </div>
-            <div style={{margin: 10}}>
-                <TextField id="icon" {...register('icon')} placeholder="иконка..." label="Иконка" />
             </div>
             <div style={{margin: 10}}>
                 <TextField id="src" {...register('src')} placeholder="источник..." label="Источник игры (URL)" />
