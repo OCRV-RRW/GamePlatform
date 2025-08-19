@@ -140,7 +140,9 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 // @Router		 /api/v1/users/me [patch]
 func (h *UserHandler) UpdateMe(c *fiber.Ctx) error {
 	user := c.Locals("user").(*repository.GetUser)
-	return h.updateUserByPayload(c, user)
+	current_user, _ := c.Locals("user").(*repository.GetUser)
+
+	return h.updateUserByPayload(c, user, current_user.IsAdmin)
 }
 
 // UpdateUser godoc
@@ -164,10 +166,12 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		}
 	}
 
-	return h.updateUserByPayload(c, user)
+	current_user, _ := c.Locals("user").(*repository.GetUser)
+
+	return h.updateUserByPayload(c, user, current_user.IsAdmin)
 }
 
-func (h *UserHandler) updateUserByPayload(c *fiber.Ctx, old_user *repository.GetUser) error {
+func (h *UserHandler) updateUserByPayload(c *fiber.Ctx, old_user *repository.GetUser, current_user_is_admin bool) error {
 	var payload *DTO.UpdateUserInput
 	if err := c.BodyParser(&payload); err != nil {
 		return api.UnprocessableEntityError(c, err)
@@ -192,7 +196,7 @@ func (h *UserHandler) updateUserByPayload(c *fiber.Ctx, old_user *repository.Get
 		update_user.Name = *payload.Name
 	}
 	if payload.IsAdmin != nil {
-		if !old_user.IsAdmin && *payload.IsAdmin {
+		if !current_user_is_admin {
 			return api.ForbiddenError(c, "Permission denied")
 		}
 
@@ -206,7 +210,6 @@ func (h *UserHandler) updateUserByPayload(c *fiber.Ctx, old_user *repository.Get
 			return api.InternalServerError(c, err, "something went wrong")
 		}
 	}
-
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "success"})
 }
 

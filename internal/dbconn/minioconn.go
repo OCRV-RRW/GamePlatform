@@ -37,7 +37,6 @@ func NewMinioConnection(config *config.Config) MinioConnection {
 		panic(err.Error())
 	}
 
-	slog.Info(fmt.Sprintf("%#v\n", minioClient)) // minioClient is now set up
 	slog.Info("✅ MinioClient client connected successfully...")
 
 	return MinioConnection{
